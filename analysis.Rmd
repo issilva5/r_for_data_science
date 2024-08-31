@@ -1,0 +1,73 @@
+---
+title: "analysis"
+output: html_document
+date: "2023-10-17"
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+```
+
+```{r}
+data <- read_csv("data/ifood_df.csv")
+```
+
+```{r}
+data <- data %>%
+  mutate(Income = -Income)
+```
+
+```{r}
+data <- data %>% select(
+  -starts_with("Z_"),
+  -Recency,
+  -Complain,
+  -Response,
+  -Customer_Days,
+  -starts_with("education_"),
+  -NumDealsPurchases,
+  -NumWebVisitsMonth,
+  -MntTotal,
+  -AcceptedCmpOverall
+) %>% janitor::clean_names() %>%
+  select(
+    income,
+    age,
+    kidhome,
+    teenhome,
+    starts_with("marital"),
+    starts_with("mnt"),
+    starts_with("num"),
+    accepted_cmp1,
+    accepted_cmp2,
+    accepted_cmp3,
+    accepted_cmp4,
+    accepted_cmp5,
+  )
+```
+
+```{r}
+sample <- data %>% slice_sample(prop = 0.05)
+```
+
+```{r}
+r <- 1
+for(i in as.integer(runif(110, 1, 24))) {
+  sample[r, i] <- NA
+  r <- r + 1
+}
+```
+
+
+```{r}
+data <- bind_rows(data, sample)
+```
+
+```{r}
+data <- data %>% arrange(runif(nrow(data)))
+```
+
+```{r}
+data %>% write_csv("data/workshop_data.csv")
+```
+

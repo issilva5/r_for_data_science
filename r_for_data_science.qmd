@@ -1,0 +1,924 @@
+---
+title: "R para Ciência de Dados"
+subtitle: "Uma introdução ao tidyverse"
+author: "Ítallo Silva"
+format: 
+  revealjs:
+      slide-number: c/t
+---
+
+## Quem sou eu? {.smaller}
+
+::: columns
+
+::: {.column width="49%"}
+
+![](images/me.png){height="500px"}
+
+:::
+
+::: {.column width="49%"}
+
+Me chamo <span style="background-color: #fbcb04">Ítallo</span>! 
+
+Atualmente sou mestrando em Computação aqui na UFCG! 
+
+Minha linha de pesquisa é na área de Sistemas de Recomendação e LLMs. 
+
+Trabalho com análise de dados e aprendizagem de máquina desde 2020. 
+
+Você pode entrar em contato via itallo@copin.ufcg.edu.br
+
+:::
+
+
+
+
+:::
+
+## Relembrando nosso título
+
+<section id="title-slide-2" style="text-align: center" class="center">
+  <h1 class="title">R para Ciência de Dados</h1>
+  <p class="subtitle">Uma introdução ao tidyverse</p>
+</section>
+
+<section id="title-slide-2" style="text-align: center" class="center">
+  <h1 class="title"><span style="background-color: #6b9beb">R</span> para <span style="background-color: #fbcb04">Ciência de Dados</span></h1>
+  <p class="subtitle">Uma introdução ao <span style="background-color: #f3941c">tidyverse</span></p>
+</section>
+
+## R
+
+- É uma linguagem de programação para <span style="background-color: #6b9beb">análise estatística</span>.
+
+- 7ª linguagem de programação mais popular em buscas no Google[^1].
+
+- 2ª linguagem de programação mais requisitada em vagas de Ciência de Dados[^2].
+
+[^1]: https://pypl.github.io/PYPL.html
+
+[^2]: https://365datascience.com/career-advice/career-guides/data-scientist-job-descriptions/
+
+## Ciência de dados
+
+Ciência de dados é uma área interdisciplinar (estatística, computação, etc.) que permite <span style="background-color: #fbcb04">transformar dados brutos em compreensão, percepção e conhecimento</span>.
+
+::: {style="text-align: center"}
+
+::: {.r-stack}
+
+![](images/pipeline.png){.fragment}
+
+![](images/pipeline-ccc.png){.fragment}
+
+:::
+
+:::
+
+## Tidyverse
+
+É uma <span style="background-color: #f3941c">coleção de pacotes</span> R desenvolvidos para ciência de dados.
+
+::: {style="text-align: center"}
+
+![](images/tidyverse_packages.png){.fragment width="700" height="450"}
+
+:::
+
+## Tidyverse
+
+É uma <span style="background-color: #f3941c">coleção de pacotes</span> R desenvolvidos para ciência de dados.
+
+::: {style="text-align: center"}
+
+![](images/pipeline-tidyverse.png)
+
+:::
+
+## Como vai funcionar nosso workshop?
+
+::: {.incremental}
+
+1. Momento expositivo I - Leitura e processamento de dados (readr, tidyr, dplyr)
+
+2. Momento prático I
+
+3. Momento expositivo II - Visualização de dados (ggplot)
+
+4. Momento prático II
+
+:::
+
+#
+
+<section id="expo-1" style="text-align: center" class="center">
+  <h2 class="title">Leitura e processamento de dados</h2>
+  <p class="subtitle">Momento expositivo I</p>
+</section>
+
+# Leitura de dados com readr
+
+## readr
+
+- Oferece uma forma rápida e fácil de ler dados tabulares de arquivos delimitados (CSV, TSV, etc).
+- Isso pode ser feito através da família de funções `read_*`. A seguir vemos o uso da função `read_csv`.
+
+::: {.fragment}
+
+```{r}
+#| echo: true
+
+library(readr)
+data <- read_csv("data/students.csv")
+```
+:::
+
+::: {.incremental}
+
+- Além da função `read_csv`, a biblioteca oferece ainda: `read_delim`, `read_csv2`, `read_tsv`, `read_log` e `read_fwf.`
+
+:::
+
+## readr
+
+As funções `read_*` compartilham alguns parâmetros entre si que merecem destaque:
+
+::: {.incremental}
+
+- file
+- col_names
+- col_types
+- col_select
+- na
+- skip
+
+:::
+
+## readr
+
+![](images/read_csv_params.png)
+
+## readr - col_types {.smaller}
+
+Por padrão, as funções `read_*` irão tentar inferir o tipo do dado de cada coluna, usando o seguinte algoritmo:
+
+::: {.incremental}
+
+1. A coluna contém zero linhas? <span style="color: #1A8828">character</span>.
+2. Todos os valores estão ausentes? <span style="color: #1A8828">logical</span>.
+3. Tente realizar parsing para os seguintes tipos e retorne o primeiro que tiver sucesso:
+
+::: columns
+
+::: {.column width="45%"}
+ - logical
+ - integer 
+ - double
+ - number 
+:::
+
+::: {.column width="45%"}
+ - time 
+ - date
+ - datetime
+ - character
+:::
+
+:::
+
+:::
+
+::: {.fragment}
+
+É sempre bom especificar os tipos esperados usando o parâmetro `col_types`. Pois vai deixar a leitura mais rápida e mais segura.
+
+:::
+
+## readr - col_types {.smaller}
+
+```{r}
+#| echo: true
+
+library(readr)
+data <- read_csv("data/students.csv",
+                 col_types = list(
+                   `Student ID` = col_integer(),
+                   `Full Name` = col_character(),
+                   favourite.food = col_character(),
+                   mealPlan = col_factor(),
+                   AGE = col_integer(),
+                   height = col_double()
+                 ))
+
+data
+```
+
+
+## readr - col_types {.smaller}
+
+```{r}
+#| echo: true
+#| warning: true
+
+library(readr)
+data <- read_csv("data/students.csv",
+                 col_types = list(
+                   `Student ID` = col_integer(),
+                   `Full Name` = col_character(),
+                   favourite.food = col_character(),
+                   mealPlan = col_factor(),
+                   AGE = col_integer(),
+                   height = col_double()
+                 ))
+```
+Algumas vezes podemos encontrar problemas de conversão ao lermos os dados:
+
+```{r}
+#| echo: true
+#| warning: true
+
+problems(data)
+```
+
+## tibble {.smaller}
+
+As funções `read_*` retornam um tipo especial de dado chamado **tibble**. As funções do tidyverse manipulam tibbles.
+
+```{r}
+#| echo: true
+
+data <- read_csv("data/students.csv",
+                 col_names = c("student_id", "full_name", "favourite_food",
+                               "meal_plan", "age", "height"),
+                 na = c("", "NA", "N/A"),
+                 skip = 1,
+                 col_types = list(
+                   student_id = col_integer(),
+                   full_name = col_character(),
+                   favourite_food = col_character(),
+                   meal_plan = col_factor(),
+                   age = col_integer(),
+                   height = col_double()
+                 ))
+
+data
+```
+
+# Organizando dados com tidyr
+
+## tidyr
+
+O objetivo do tidyr é ajudá-lo a criar **tidy data**. **tidy data** são dados onde:
+
+::: {.incremental}
+
+1. Cada coluna é variável.
+2. Cada linha é uma observação.
+3. Cada célula é um valor único.
+
+:::
+
+::: {.fragment}
+
+**tidy data** descrevem uma maneira padrão de armazenar dados que é usada sempre que possível em todo o tidyverse. Vejamos alguns exemplos de dados.
+
+:::
+
+## Caso 1: É tidy data?
+
+```{r}
+tidyr::table2
+```
+
+::: {.fragment}
+Não! <span style="color: red">A coluna type tem duas variáveis cases e population</span>.
+:::
+
+## Caso 2: É tidy data?
+
+```{r}
+tidyr::table5
+```
+
+::: {.fragment}
+Não! <span style="color: red">As células da coluna rate tem dois valores: cases e population</span>.
+:::
+
+## Caso 3: É tidy data?
+
+```{r}
+table4 <- tidyr::table4a |> dplyr::left_join(tidyr::table4b, by = "country", suffix = c(".cases", ".population"))
+table4
+```
+
+::: {.fragment}
+Não! <span style="color: red">A variável ano está espalhada pelas colunas</span>.
+:::
+
+## Caso 4: É tidy data?
+
+```{r}
+tidyr::table1
+```
+
+::: {.fragment}
+<span style="color: green">Sim</span>. Vamos ver como podemos transformar os outros casos em **tidy data**.
+:::
+
+## Tratando do caso 1
+
+```{r}
+tidyr::table2
+```
+
+O que precisamos fazer aqui?
+
+::: {.fragment}
+<span style="color: green">Precisamos criar colunas para as variáveis cases e population, com os respectivos valores da coluna count.</span> Para isso usaremos uma operação chamada *pivot_wider*.
+:::
+
+## Tratando do caso 1 - Solução
+
+```{r}
+#| echo: true
+
+library(tidyr)
+
+table2 |> pivot_wider(names_from = type, values_from = count)
+```
+
+## Tratando do caso 2
+
+```{r}
+table5
+```
+
+O que precisamos fazer aqui?
+
+::: {.fragment}
+<span style="color: green">Precisamos separar a coluna rate em duas: cases e population. E unir o século com o ano, para termos um ano completo.</span> Para isso usaremos uma operação chamada *separate* e *unite*, respectivamente.
+:::
+
+## Tratando do caso 2 - Solução
+
+Como nossa intenção é separar em novas colunas usaremos *separate_wider*, caso quisessemos separar em novas linhas poderiamos usar *separate_longer*.
+
+```{r}
+#| echo: true
+
+table5 |>
+  separate_wider_delim(
+    cols = rate,
+    delim = "/",
+    names = c("cases", "population")
+  )
+```
+
+## Tratando do caso 2 - Solução
+
+```{r}
+#| echo: true
+
+table5 |>
+  separate_wider_delim(
+    cols = rate,
+    delim = "/",
+    names = c("cases", "population")
+  ) |>
+  unite(century, year, sep = "", col = "year")
+```
+
+## Tratando do caso 3
+
+```{r}
+table4
+```
+
+O que precisamos fazer aqui?
+
+::: {.fragment}
+<span style="color: green">Primeiramente precisamos 'enxugar' o dado, transformando as quatro colunas em duas.</span> Para isso usaremos uma operação chamada *pivot_longer*.
+:::
+
+## Tratando do caso 3 - Solução {.smaller}
+
+```{r}
+#| echo: true
+
+table4 |> pivot_longer(cols = 2:5)
+```
+
+::: {.fragment}
+
+Acabamos?
+
+:::
+
+::: {.fragment}
+Não. <span style="color: green">Precisamos agora extrair o ano.</span> Para isso usaremos mais uma vez *separate_wider*.
+:::
+
+## Tratando do caso 3 - Solução {.smaller}
+
+```{r}
+#| echo: true
+
+table4 |>
+  pivot_longer(cols = 2:5) |>
+  separate_wider_delim(cols = name,
+                       delim = ".",
+                       names = c("year", "type"))
+```
+
+::: {.fragment}
+
+Acabamos?
+
+:::
+
+::: {.fragment}
+Não. <span style="color: green">Voltamos ao caso 1.</span> Então usaremos mais uma vez *pivot_wider*.
+:::
+
+## Tratando do caso 4 - Solução
+
+```{r}
+#| echo: true
+
+table4 |>
+  pivot_longer(cols = 2:5) |>
+  separate_wider_delim(cols = name,
+                       delim = ".",
+                       names = c("year", "type")) |>
+  pivot_wider(names_from = type, values_from = value)
+```
+
+## Lidando com dados faltantes
+
+tidyr também oferece funções para lidar com dados faltantes.
+
+![](images/missing.png)
+
+# Transformando dados com dplyr
+
+## dplyr {.smaller}
+
+dplyr é uma gramática de manipulação de dados, fornecendo um conjunto consistente de verbos que ajudam a resolver os desafios mais comuns de manipulação de dados:
+
+```{r}
+#| echo: true
+
+library(dplyr)
+```
+
+
+::: {.incremental}
+
+- `select`: escolhe variáveis com base em seus nomes.
+- `rename`: permite mudar o nome das variáveis.
+- `mutate`: adiciona novas variáveis que são funções de variáveis existentes.
+- `filter`: escolhe casos com base em seus valores.
+- `arrange`: altera a ordem das linhas.
+- `summarise`: reduz vários valores a um único resumo.
+- `group_by`: permite realizar qualquer operação “por grupo”.
+- Além disso ela também fornece operações de `join`, porém não iremos trabalhar com elas nesse workshop.
+
+:::
+
+## mtcars {.smaller}
+
+Para os exemplos a seguir utilizaremos o seguinte conjunto de dados.
+
+```{r}
+#| echo: true
+
+head(mtcars)
+```
+
+Um dataset com 32 observações em 11 variáveis numéricas.
+
+::: columns
+
+::: {.column width="45%"}
+- mpg milhas/galão (EUA)
+- cyl Número de cilindros
+- disp Deslocamento (pol. cúbicas)
+- hp Potência bruta
+- drat Relação do eixo traseiro
+- wt Peso (1000 libras)
+:::
+
+::: {.column width="45%"}
+- qsec 1/4 milha tempo
+- vs Motor (0 = em forma de V, 1 = reto)
+- am Transmissão (0 = automática, 1 = manual)
+- gear Número de marchas
+- carb Número de carburadores
+:::
+
+:::
+
+
+## select
+
+```{r}
+#| echo: true
+
+mtcars |>
+  select(mpg, wt)
+```
+
+## rename
+
+```{r}
+#| echo: true
+
+mtcars |>
+  rename(milhas_por_galao = mpg)
+```
+
+## mutate
+
+```{r}
+#| echo: true
+
+mtcars |>
+  mutate(wt_ton = wt * 0.453,
+         am = ifelse(am == 0, "automatic", "manual"))
+```
+
+## filter
+
+```{r}
+#| echo: true
+
+mtcars |>
+  filter(mpg > 15, am == 0 | vs == 1)
+```
+
+## arrange
+
+```{r}
+#| echo: true
+
+mtcars |>
+  arrange(desc(wt), qsec)
+```
+
+## summarise
+
+```{r}
+#| echo: true
+
+mtcars |>
+  summarise(samples = n(),
+            wt_mean = mean(wt),
+            wt_min = min(wt),
+            wt_max = max(wt),
+            wt_sd = sd(wt),
+            wt_median = median(wt))
+```
+
+## group_by
+
+```{r}
+#| echo: true
+
+mtcars |> group_by(am, vs)
+```
+
+## group_by + summarise
+
+```{r}
+#| echo: true
+#| warning: false
+
+mtcars |>
+  group_by(am, vs) |>
+  summarise(samples = n(),
+            wt_mean = mean(wt),
+            wt_min = min(wt),
+            wt_max = max(wt),
+            wt_sd = sd(wt),
+            wt_median = median(wt)) %>%
+  ungroup()
+```
+
+## group_by + mutate
+
+```{r}
+#| echo: true
+
+mtcars |>
+  group_by(am) |>
+  mutate(wt = (wt - mean(wt))/sd(wt))
+```
+
+## group_by + mutate
+
+```{r}
+#| echo: true
+
+mtcars |>
+  group_by(am) |>
+  mutate(wt = (wt - mean(wt))/sd(wt)) |>
+  summarise(samples = n(),
+            wt_mean = mean(wt),
+            wt_min = min(wt),
+            wt_max = max(wt),
+            wt_sd = sd(wt),
+            wt_median = median(wt))
+```
+
+#
+
+<section id="pra-1" style="text-align: center" class="center">
+  <h2 class="title">Leitura e processamento de dados</h2>
+  <p class="subtitle">Momento prático I</p>
+</section>
+
+# Motivando a atividade prática
+
+## Motivando a atividade prática {.smaller}
+
+::: {.incremental}
+
+- Considere uma empresa bem estabelecida que opera no setor de varejo de alimentos. Atualmente, eles têm cerca de várias centenas de milhares de clientes registrados e atendem quase um milhão de consumidores por ano. 
+
+- Eles vendem produtos de 5 categorias principais: vinhos, produtos de carne rara, frutas exóticas, peixes especialmente preparados e produtos doces. Esses produtos podem ser ainda divididos em produtos gold e produtos regulares. Os clientes podem fazer pedidos e adquirir produtos por meio de 3 canais de venda: lojas físicas, catálogos e o site da empresa. 
+
+- Globalmente, a empresa teve receitas sólidas e uma saúde financeira sólida nos últimos 3 anos, mas as perspectivas de crescimento dos lucros para os próximos 3 anos não são promissoras... Por essa razão, várias iniciativas estratégicas estão sendo consideradas para reverter essa situação. Uma delas é melhorar o desempenho das atividades de marketing, com um foco especial em campanhas de marketing.
+
+- Você foi contratado como parte de um time de cientistas de dados com o objetivo de estudar os dados para encontrar *insights* que possam ajudar o time de marketing a pensar melhor sua próxima campanha. Você ficou responsável por algumas tarefas.
+
+:::
+
+## Acessando o colab
+
+Para realizar as atividades vocês devem copiar o Colab disponível nesse link: [https://shorturl.at/suOW7](https://shorturl.at/suOW7).
+
+## 1ª Tarefa
+
+Um erro no código de coleta dos dados fez com que eles tivessem alguns problemas. Sua primeira tarefa é realizar uma limpeza e organização dos dados. Realize as seguintes sub-tarefas:
+
+- Transforme os dados para ficarem de acordo com o formato *tidy data*.
+- Remova linhas que tiverem algum valor faltante.
+- A variável *Income* (Renda) foi coletada com valor negativo, transforme-a em um valor positivo.
+- Crie uma variável *MntTotal* que contém o total gasto por cada usuário em produtos.
+
+## 2ª Tarefa
+
+Descubra a proporção de clientes que já compraram em alguma campanha de marketing.
+
+## 3ª Tarefa
+
+Sabendo que a Campanha 5 aconteceu nos dias dos namorados e teve um foco especial nos clientes com cônjuge. A equipe de marketing deseja saber a proporção do público-alvo que aceitou a oferta da campanha.
+
+## 4ª Tarefa
+
+A próxima campanha a ser realizada ofertará um produto gold da categoria doces. Sendo assim, a equipe de marketing deseja saber a proporção de clientes que tem uma criança ou um adolescente em casa, que já gastou pelo menos 50 reais em produtos gold e 20 reais em doces.
+
+#
+
+<section id="expo-2" style="text-align: center" class="center">
+  <h2 class="title">Visualização de dados</h2>
+  <p class="subtitle">Momento expositivo II</p>
+</section>
+
+# Visualização de dados com ggplot
+
+## ggplot
+
+ggplot2 é um sistema para criação de gráficos declarativamente, baseado em [The Grammar of Graphics](https://www.amazon.com/Grammar-Graphics-Statistics-Computing/dp/0387245448/ref=as_li_ss_tl). Esse livro descreve uma gramática que permite sair de declarações para gráficos.
+
+![](images/ggplot_grammar_example.png){.absolute bottom=0 right=50 width="600" height="400"}
+
+## ggplot
+
+ggplot2 implementa essa gramática em forma de camadas:
+
+![](images/ggplot_layers.png)
+
+## ggplot
+
+Iremos ver o passo a passo para chegar a esse gráfico.
+
+```{r}
+library(ggplot2)
+library(palmerpenguins)
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)", y = "Body mass (g)",
+    color = "Species", shape = "Species"
+  ) +
+  theme_minimal()
+```
+
+## ggplot
+
+```{r}
+#| echo: true
+
+library(ggplot2)
+library(palmerpenguins)
+
+glimpse(penguins)
+```
+
+## ggplot - A função ggplot
+
+```{r}
+#| echo: true
+#| fig-align: center
+#| output-location: fragment
+
+ggplot(data = penguins)
+```
+
+## ggplot - Mapeando nossos dados
+
+```{r}
+#| echo: true
+#| fig-align: center
+#| output-location: fragment
+#| code-line-numbers: "3"
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+)
+```
+
+## A camada aesthetic {.smaller}
+
+A palavra *aesthetic*, no nosso contexto, significa “algo que você pode ver”. Cada estética é um mapeamento entre uma sugestão visual e uma variável. Exemplos incluem:
+
+::: {.incremental}
+
+- `x` e `y`: posição (ou seja, nos eixos x e y)
+- `color`: cor (cor “externa”)
+- `fill`: preencher (cor “interior”)
+- `shape`: forma (de pontos)
+- `linetype`: tipo de linha
+- `size`: tamanho
+- `alpha`: transparência
+- `linewidth`: espessura (de linha)
+
+:::
+
+
+## ggplot - Adicionando uma geometria {.center}
+
+```{r}
+#| echo: true
+#| fig-align: center
+#| output-location: fragment
+#| code-line-numbers: "5"
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm, y = body_mass_g)
+) +
+  geom_point()
+```
+
+## A camada de geometrias {.center}
+
+![](images/ggplot_geoms.png)
+
+## ggplot - Adicionando cores
+
+```{r}
+#| echo: true
+#| fig-align: center
+#| output-location: fragment
+#| code-line-numbers: "3"
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm,y = body_mass_g, color = species)
+) +
+  geom_point()
+```
+
+## ggplot - Reta de regressão
+
+```{r}
+#| echo: true
+#| output-location: fragment
+#| fig-align: center
+#| code-line-numbers: "5"
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm,  y = body_mass_g, color = species)
+) + geom_point() +
+  geom_smooth(method = "lm")
+```
+
+## Escopo global vs escopo local {.smaller}
+
+::: {.incremental}
+
+- Quando as *aesthetic* são definidas em ggplot(), ou seja em **nível global**, elas são transmitidos para cada uma das camadas de geometria subsequentes do gráfico. 
+- No entanto, cada função geom no ggplot2 também pode receber um argumento de mapeamento, o que permite mapeamentos estéticos no **nível local** que são adicionados àqueles herdados do nível global.
+- Como queremos que os pontos sejam coloridos com base nas espécies, mas não queremos que as linhas sejam separadas para elas, devemos especificar `color = species` apenas para `geom_point()`.
+- Mais detalhes sobre a relação de *aesthetic* and *geom* podem ser vistos [aqui](https://drive.google.com/file/d/1Dvul1p6TYH6gWJzZRwpE0YX1dO0hDF-b/view).
+
+:::
+
+## ggplot - Corrigindo o escopo
+
+```{r}
+#| echo: true
+#| output-location: fragment
+#| fig-align: center
+#| code-line-numbers: "2"
+
+ggplot(data = penguins, mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(color = species)) +
+  geom_smooth(method = "lm")
+```
+
+## ggplot - Adicionando formas
+
+```{r}
+#| echo: true
+#| output-location: fragment
+#| fig-align: center
+#| code-line-numbers: "2"
+
+ggplot(data = penguins, mapping = aes(x = flipper_length_mm, y = body_mass_g)) +
+  geom_point(mapping = aes(color = species, shape = species)) +
+  geom_smooth(method = "lm")
+```
+
+## ggplot - Rótulos e Temas
+
+```{r}
+#| echo: true
+#| output-location: slide
+#| fig-align: center
+#| code-line-numbers: "7-13"
+
+ggplot(
+  data = penguins,
+  mapping = aes(x = flipper_length_mm,y = body_mass_g)
+) +
+  geom_point(aes(color = species, shape = species)) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Body mass and flipper length",
+    subtitle = "Dimensions for Adelie, Chinstrap, and Gentoo Penguins",
+    x = "Flipper length (mm)", y = "Body mass (g)",
+    color = "Species", shape = "Species"
+  ) +
+  theme_minimal()
+```
+
+Mais temas podem ser vistos [aqui](https://ggplot2.tidyverse.org/reference/ggtheme.html).
+
+#
+
+<section id="pra-2" style="text-align: center" class="center">
+  <h2 class="title">Visualização de dados</h2>
+  <p class="subtitle">Momento prático II</p>
+</section>
+
+# Motivando a atividade prática
+
+Após seu sucesso em suas primeiras tarefas, a empresa pediu a você parar gerar algumas visualizações para ela.
+
+## 5ª Tarefa
+
+Com o objetivo de focar melhor na publicidade da próxima campanha, a equipe de marketing deseja saber qual a distribuição das vendas por canal de venda do público-alvo da campanha (clientes que tem uma criança ou um adolescente em casa). Eles desejam ver essa informação em um gráfico de barra.
+
+## 6ª Tarefa
+
+O time de marketing deseja visualizar a relação entre a renda dos clientes e o total gasto em compras. Eles desejam ver essa informação em um gráfico de dispersão.
+
+# Como aprender mais?
+
+## Como aprender mais?
+
+- Curso de R via [swirl](https://swirlstats.com/students.html)
+- Cursos de [Data Science Foundations with R](https://www.coursera.org/specializations/data-science-foundations-r) no Coursera
+- Livro online [R for Data Science](https://r4ds.hadley.nz)
+- Cursando as disciplinas do curso de Ciência de Dados
+
+#
+
+<section id="fim" style="text-align: center" class="center">
+  <h2 class="title">Fim!</h2>
+  <p class="subtitle">Obrigado pela participação!</p>
+</section>
+
